@@ -8,12 +8,12 @@ A simple web crawler to fetch updated web page content and send notification
 - disintct the updated list
 - send notification to Slack channel
 
-### INSTALL
+### Install
 ```
 npm i
 ```
 
-### Basic usage
+### Basic Usage
 ```
 update listRule for the web page
 
