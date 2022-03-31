@@ -45,8 +45,9 @@ var _ = require("lodash");
 var web_api_1 = require("@slack/web-api");
 var readability_1 = require("@mozilla/readability");
 var jsdom_1 = require("jsdom");
+var crypto = require("crypto");
 var url = process.argv[2];
-var dataStore = 'data.json';
+var dataStore = 'storage/' + crypto.createHash('md5').update(url).digest('hex');
 var listRule = 'li a';
 var request = function (url) { return __awaiter(void 0, void 0, void 0, function () {
     return __generator(this, function (_a) {
@@ -134,7 +135,7 @@ request(url)
     if (latest.length)
         send(latest.map(function (obj) { return "<".concat(obj.link, "|").concat(obj.name, ">"); }).join('\n'));
 });
-/*
+/* fetch and send content pages
 .then(latest => {
   latest.forEach(obj => {
     parseContent(obj.link)

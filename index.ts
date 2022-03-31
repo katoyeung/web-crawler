@@ -7,9 +7,11 @@ import * as _ from 'lodash'
 import { WebClient } from '@slack/web-api'
 import { Readability } from '@mozilla/readability'
 import { JSDOM } from 'jsdom'
+import * as crypto from 'crypto'
+
 
 const url = process.argv[2]
-const dataStore = 'data.json'
+const dataStore = 'storage/' + crypto.createHash('md5').update(url).digest('hex')
 const listRule = 'li a'
 
 const request = async (url: string) => {
