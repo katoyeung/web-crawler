@@ -11,8 +11,9 @@ import * as crypto from 'crypto'
 
 
 const url = process.argv[2]
+const sort = process.argv[3]
 const dataStore = 'storage/' + crypto.createHash('md5').update(url).digest('hex')
-const listRule = 'li a'
+const listRule = '.info-title .a-link'
 
 const request = async (url: string) => {
   return axios
@@ -60,7 +61,7 @@ const checkUpdate = (postList: { id: number, link: string }[]) => {
 
     const diff = postList.filter(obj => ch.findIndex(o => o.id === obj.id) == -1)
     if (diff.length > 0) {
-      latest = diff.slice(-3)
+      latest = sort === 'asc' ? diff.slice(-3) : diff.slice(0, 3)
     }
   }
 
@@ -81,7 +82,7 @@ const parseList = (html: string) => {
     postList.push({
       id: idx,
       name: $(item).text(),
-      link: url + $(item).attr('href')
+      link: $(item).attr('href')
     })
   })
 
@@ -95,17 +96,20 @@ request(url)
   .then(postList => {
     return checkUpdate(postList)
   })
+  /*
   .then(latest => {
     if (latest.length) send(latest.map(obj => `<${obj.link}|${obj.name}>`).join('\n'))
   })
 /* fetch and send content pages
+ */
 .then(latest => {
   latest.forEach(obj => {
     parseContent(obj.link)
     .then(doc => {
-      send(`*${doc.title}*\n${doc.textContent}`)
+	const content = doc.textContent.replace(/。/g, '。\n\n')
+      	send(`\n\n>*${doc.title}*\n\n\n${content}\n\n======== END ========\n\n\n`)
     })
+
   })
 })
-*/
 

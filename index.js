@@ -14,7 +14,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
+        while (g && (g = 0, op[0] && (_ = 0)), _) try {
             if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
             if (y = 0, t) op = [op[0] & 2, t.value];
             switch (op[0]) {
@@ -47,8 +47,9 @@ var readability_1 = require("@mozilla/readability");
 var jsdom_1 = require("jsdom");
 var crypto = require("crypto");
 var url = process.argv[2];
+var sort = process.argv[3];
 var dataStore = 'storage/' + crypto.createHash('md5').update(url).digest('hex');
-var listRule = 'li a';
+var listRule = '.info-title .a-link';
 var request = function (url) { return __awaiter(void 0, void 0, void 0, function () {
     return __generator(this, function (_a) {
         return [2 /*return*/, axios_1["default"]
@@ -101,7 +102,7 @@ var checkUpdate = function (postList) {
         });
         var diff = postList.filter(function (obj) { return ch.findIndex(function (o) { return o.id === obj.id; }) == -1; });
         if (diff.length > 0) {
-            latest = diff.slice(-3);
+            latest = sort === 'asc' ? diff.slice(-3) : diff.slice(0, 3);
         }
     }
     return latest;
@@ -119,7 +120,7 @@ var parseList = function (html) {
         postList.push({
             id: idx,
             name: $(item).text(),
-            link: url + $(item).attr('href')
+            link: $(item).attr('href')
         });
     });
     return postList;
@@ -131,17 +132,18 @@ request(url)
     .then(function (postList) {
     return checkUpdate(postList);
 })
-    .then(function (latest) {
-    if (latest.length)
-        send(latest.map(function (obj) { return "<".concat(obj.link, "|").concat(obj.name, ">"); }).join('\n'));
-});
-/* fetch and send content pages
-.then(latest => {
-  latest.forEach(obj => {
-    parseContent(obj.link)
-    .then(doc => {
-      send(`*${doc.title}*\n${doc.textContent}`)
+    /*
+    .then(latest => {
+      if (latest.length) send(latest.map(obj => `<${obj.link}|${obj.name}>`).join('\n'))
     })
-  })
-})
-*/
+  /* fetch and send content pages
+   */
+    .then(function (latest) {
+    latest.forEach(function (obj) {
+        parseContent(obj.link)
+            .then(function (doc) {
+            var content = doc.textContent.replace(/。/g, '。\n\n');
+            send("\n\n>*".concat(doc.title, "*\n\n\n").concat(content, "\n\n======== END ========\n\n\n"));
+        });
+    });
+});
